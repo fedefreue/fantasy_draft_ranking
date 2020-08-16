@@ -1,27 +1,32 @@
-import logging
-import os
-import pprint
-import unittest
-import warnings
-from unittest import skip, TestCase
+from yahoo_oauth import OAuth2
+#https://vicmora.github.io/blog/2017/03/17/yahoo-fantasy-sports-api-authentication
+conn = OAuth2(None, None, from_file='private.json')
 
-from yfpy import Data
-from yfpy.models import Game, StatCategories, User, Scoreboard, Settings, Standings, League, Player, Team, \
-    TeamPoints, TeamStandings, Roster
-from yfpy.query import YahooFantasySportsQuery
+url = 'https://fantasysports.yahooapis.com/fantasy/v2/leagues;league_keys=nfl.l.254924'
+r = conn.session.get(url, params={'format': 'json'})
+r.json()
+# try 2
 
+#lg = fya.League(conn,'254924')
 
-
-
+#draft_res = lg.teams()
+#print(draft_res)
 
 
+#oauth.refresh_access_token()
+#response = oauth.session.get(url, params=payload)
+
+
+"""
+if not oauth.token_is_valid():
+    oauth.refresh_access_token()
+# Example
+response = oauth.session.get(url, params=payload)
+"""
+
+
+"""
 OATH_APP_ID = 'MWsTtRHp'
-#CLIENT_ID = 'dj0yJmk9SW9mNVdqRndRdnp5JmQ9WVdrOVRWZHpWSFJTU0hBbWNHbzlNQT09JnM9Y29uc3VtZXJzZWNyZXQmc3Y9MCZ4PTE1'
-#CLIENT_SECRET = 'efc11770248263c8a689f7d9ddf0c1a2cddf73b3'
-
 
 REDIRECT_URI = 'localhost:8080'
-
-AUTHORIZE_URL = 'https://api.login.yahoo.com/oauth/v2/request_auth'
-ACCESS_TOKEN_URL = 'https://api.login.yahoo.com/oauth/v2/get_token'
-request_token_url = 'https://api.login.yahoo.com/oauth/v2/get_request_token'
+"""
