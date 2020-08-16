@@ -1,8 +1,8 @@
 from yahoo_oauth import OAuth2
 #https://vicmora.github.io/blog/2017/03/17/yahoo-fantasy-sports-api-authentication
 conn = OAuth2(None, None, from_file='private.json')
-if not oauth.token_is_valid():
-    oauth.refresh_access_token()
+if not conn.token_is_valid():
+    conn.refresh_access_token()
 
 url = 'https://fantasysports.yahooapis.com/fantasy/v2/leagues;league_keys=nfl.l.254924'
 r = conn.session.get(url, params={'format': 'json'})
