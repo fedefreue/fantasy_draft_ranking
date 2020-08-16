@@ -9,7 +9,13 @@ if not conn.token_is_valid():
 url = 'https://fantasysports.yahooapis.com/fantasy/v2/leagues;league_keys=nfl.l.254924'
 r = conn.session.get(url, params={'format': 'json'})
 
-#pd.json_normalize(r.json())
+url = 'https://fantasysports.yahooapis.com/fantasy/v2/league/nfl.l.254924/players;status=A'
+r = conn.session.get(url, params={'format': 'xml'})
+
+print(r.json())
+
+data = pd.json_normalize(r.json())
+print(data)
 
 
 #lg = fya.League(conn,'254924')
