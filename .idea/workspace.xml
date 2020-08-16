@@ -19,10 +19,7 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bd6242f5-4c98-46d5-ad0e-dfe4439f32c3" name="Default Changelist" comment="Begin JSON Normalization">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/connect.py" beforeDir="false" afterPath="$PROJECT_DIR$/connect.py" afterDir="false" />
-    </list>
+    <list default="true" id="bd6242f5-4c98-46d5-ad0e-dfe4439f32c3" name="Default Changelist" comment="Pull down player information" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -86,7 +83,14 @@
       <option name="project" value="LOCAL" />
       <updated>1597588551312</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Pull down player information">
+      <created>1597592340920</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1597592340920</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -99,11 +103,13 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Minor edits" />
     <MESSAGE value="Begin JSON Normalization" />
-    <option name="LAST_COMMIT_MESSAGE" value="Begin JSON Normalization" />
+    <MESSAGE value="Pull down player information" />
+    <option name="LAST_COMMIT_MESSAGE" value="Pull down player information" />
   </component>
   <component name="WindowStateProjectService">
     <state x="184" y="98" width="1071" height="700" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1597588322710">
@@ -146,9 +152,9 @@
       <screen x="0" y="23" width="1440" height="827" />
     </state>
     <state width="1379" height="250" key="GridCell.Tab.1.right/0.23.1440.827@0.23.1440.827" timestamp="1597591911637" />
-    <state x="320" y="176" key="Vcs.Push.Dialog.v2" timestamp="1597588554394">
+    <state x="320" y="176" key="Vcs.Push.Dialog.v2" timestamp="1597592343527">
       <screen x="0" y="23" width="1440" height="827" />
     </state>
-    <state x="320" y="176" key="Vcs.Push.Dialog.v2/0.23.1440.827@0.23.1440.827" timestamp="1597588554394" />
+    <state x="320" y="176" key="Vcs.Push.Dialog.v2/0.23.1440.827@0.23.1440.827" timestamp="1597592343527" />
   </component>
 </project>
