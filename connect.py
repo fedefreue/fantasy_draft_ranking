@@ -1,11 +1,15 @@
 from yahoo_oauth import OAuth2
 import pandas as pd
+import yahoo_fantasy_api as yfa
 
 #https://vicmora.github.io/blog/2017/03/17/yahoo-fantasy-sports-api-authentication
 conn = OAuth2(None, None, from_file='private.json')
 if not conn.token_is_valid():
     conn.refresh_access_token()
 
+league = yfa.League(conn,'nfl.l.254924')
+print(league)
+"""
 url = 'https://fantasysports.yahooapis.com/fantasy/v2/leagues;league_keys=nfl.l.254924'
 r = conn.session.get(url, params={'format': 'json'})
 
@@ -16,7 +20,7 @@ print(r.json())
 
 data = pd.json_normalize(r.json())
 print(data)
-
+"""
 
 #lg = fya.League(conn,'254924')
 
