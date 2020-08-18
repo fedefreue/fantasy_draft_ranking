@@ -19,7 +19,7 @@ league = yfa.League(conn,'nfl.l.254924')
 
 #freeAgents = pd.DataFrame(league.free_agents(position))
 #freeAgentList = list(freeAgents['player_id'])
-seasonList = [2019]
+seasonList = [2018, 2019]
 positions = ['RB', 'QB', 'WR', 'TE']
 points = {
     'Pass Yds':     0.04,
