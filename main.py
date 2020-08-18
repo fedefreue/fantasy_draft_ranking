@@ -1,11 +1,13 @@
-from tkinter import Tk, ttk
 import tkinter as tk
+from tkinter import Tk, ttk
+
+import matplotlib.pyplot as plt
+import pandas as pd
+import sklearn.linear_model
+import yahoo_fantasy_api as yfa
+
 import connect
 import playerData
-import yahoo_fantasy_api as yfa
-import sklearn.linear_model
-import pandas as pd
-import matplotlib.pyplot as plt
 import rankPlayers
 
 points = {
@@ -109,6 +111,15 @@ class GUI(object):
         plt.scatter(self.model.predict(features), y_train)
         plt.show()
 
+    def _saveModel(self):
+        a = 1
+        # Need to add a text box to keep track of the model file
+        # https://stackabuse.com/scikit-learn-save-and-restore-models/
+
+    def _loadModel(self, modelFileName: str):
+        a = 2
+        # Pull the file with Pickles, return a model to self.model
+
     def _rankPlayers(self):
         position = self.applyPositionEntry.get()
         self.statusText.set('Applying model for position ' + str(position) + '...')
@@ -116,8 +127,8 @@ class GUI(object):
         staging = rankPlayers.rankPlayers(position, self.league, self.model, '2019')
         self.statusText.set('Writing to file...')
         staging.to_csv('test_file.csv')
+        self.statusText.set('Output file complete!')
 
 root = Tk()
 example = GUI(root)
 root.mainloop()
-
