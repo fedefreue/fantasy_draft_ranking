@@ -8,15 +8,19 @@ import playerData
 import rankPlayers
 
 #https://vicmora.github.io/blog/2017/03/17/yahoo-fantasy-sports-api-authentication
-
-conn = OAuth2(None, None, from_file='private.json')
-#conn.refresh_access_token()
-if not conn.token_is_valid():
-    conn.refresh_access_token()
-
 #conn.session.get('https://fantasysports.yahooapis.com/fantasy/v2/league/XXX.l.25494')
 
-league = yfa.League(conn,'nfl.l.254924')
+def connect(fileName:str):
+    conn = OAuth2(None, None, from_file=fileName)
+
+    if not conn.token_is_valid():
+        conn.refresh_access_token()
+    
+    return conn
+
+conn = connect('private.json')
+
+#league = yfa.League(conn,'nfl.l.254924')
 
 #freeAgents = pd.DataFrame(league.free_agents(position))
 #freeAgentList = list(freeAgents['player_id'])
@@ -37,6 +41,7 @@ points = {
     'Fum Ret TD':   2
 }
 
+"""
 masterTable = playerData.generateTrainingTable(seasonList, league, points, positions)
 
 masterTable
@@ -52,6 +57,8 @@ reg = sklearn.linear_model.LinearRegression().fit(features, y_train)
 print(reg.score(features, y_train))
 plt.scatter(reg.predict(features), y_train )
 plt.show()
-
+"""
+"""
 staging = rankPlayers.rankPlayers('QB', league, reg, 2019)
 staging.to_csv('test_file.csv')
+"""

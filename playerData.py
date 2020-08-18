@@ -3,7 +3,7 @@ import yahoo_fantasy_api as yfa
 
 def pullStatsAndPoints(season: int, league: yfa.League, points: dict, position: str, players: list):
     
-    priorSeason = season - 1
+    priorSeason = int(season) - 1
     thisSeasonStats = pd.DataFrame(league.player_stats(players, 'season', season = season))
 
     # Calculate offensive points
