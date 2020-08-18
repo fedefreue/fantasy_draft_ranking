@@ -5,6 +5,7 @@ import yahoo_fantasy_api as yfa
 from yahoo_oauth import OAuth2
 
 import playerData
+import rankPlayers
 
 #https://vicmora.github.io/blog/2017/03/17/yahoo-fantasy-sports-api-authentication
 
@@ -38,7 +39,7 @@ points = {
 
 masterTable = playerData.generateTrainingTable(seasonList, league, points, positions)
 
-masterTable.to_csv('test_file.csv')
+masterTable
 
 features = masterTable.drop(columns = ['position_type', 'player_id', 'Points'])
 y_train = masterTable['Points']
@@ -51,3 +52,6 @@ reg = sklearn.linear_model.LinearRegression().fit(features, y_train)
 print(reg.score(features, y_train))
 plt.scatter(reg.predict(features), y_train )
 plt.show()
+
+staging = rankPlayers.rankPlayers('QB', league, reg, 2019)
+staging.to_csv('test_file.csv')
