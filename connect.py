@@ -1,11 +1,4 @@
-import matplotlib.pyplot as plt
-import pandas as pd
-import sklearn.linear_model
-import yahoo_fantasy_api as yfa
 from yahoo_oauth import OAuth2
-
-import playerData
-import rankPlayers
 
 def connect(fileName:str):
     conn = OAuth2(None, None, from_file=fileName)

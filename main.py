@@ -158,15 +158,15 @@ class GUI(object):
         with open(self.pkl_filename, 'wb') as file:
             pickle.dump(self.model, file)
         
-        # Need to add a text box to keep track of the model file
-        # https://stackabuse.com/scikit-learn-save-and-restore-models/
+        self.statusText.set('Saved model to ' + str(self.pkl_filename))
 
     def _loadModel(self):
         self.pkl_filename = self.fileNameEntry.get()
         with open(self.pkl_filename, 'rb') as file:
             self.model = pickle.load(file)
-        # Pull the file with Pickles, return a model to self.model
-
+        
+        self.statusText.set('Loaded ' + str(self.pkl_filename))
+        
     def _rankPlayers(self):
         position = self.applyPositionEntry.get()
         self.statusText.set('Applying model for position ' + str(position) + '...')
