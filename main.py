@@ -30,8 +30,8 @@ class GUI(object):
     def __init__(self, master):
         self.master = master
         master.title("Fed Draft Analysis Tool")
-        master.geometry('500x275')
-        master.minsize(500,275)
+        master.geometry('500x300')
+        master.minsize(500,300)
 
         self.connectFrame = ttk.Frame(self.master)
         self.connectFrame.grid(row = 0, column = 0)
@@ -59,13 +59,20 @@ class GUI(object):
         self.connectFile = tk.StringVar()
         self.connectFile.set('private.json')
         
-        self.connectButton = ttk.Button(frame, text = 'Connect', command = self._connect)
+        self.connectButton = ttk.Button(frame, text = 'Connect', command = self._connect, width = 8)
         self.connectFileEntry = ttk.Entry(frame, width = 20, textvariable = self.connectFile)
         
+        self.leagueLabel = ttk.Label(frame, text = 'Leauge ID:', anchor = 'e', width=12)
+        self.leaugeID = tk.StringVar()
+        self.leaugeID.set('254924')
+        self.leagueEntry = ttk.Entry(frame, width = 20, textvariable = self.leaugeID)
+
         self.tokenLabel.grid(column = 0, row = 1)
         self.connectTitle.grid(column = 1, row = 0)
         self.connectFileEntry.grid(column = 1, row = 1)
         self.connectButton.grid(column = 2, row = 1)
+        self.leagueLabel.grid(column = 0, row = 2)
+        self.leagueEntry.grid(column = 1, row = 2)
 
     def applyElementsFrame(self, frame: ttk.Frame):
         self.applyPositionList = tk.StringVar()
@@ -74,12 +81,12 @@ class GUI(object):
         self.fileNameEntry.set('model.pkl')
 
         self.applyInputLabel = ttk.Label(frame, text = 'Model Management', borderwidth = 5)
-        self.applyButton = ttk.Button(frame, text = 'Rank Players', command = self._rankPlayers)
+        self.applyButton = ttk.Button(frame, text = 'Rank Players', command = self._rankPlayers, width = 8)
         self.applyPositionEntry = ttk.Entry(frame, width = 20, textvariable = self.applyPositionList)
         self.applyLabel = ttk.Label(frame, text = 'Positions:', anchor = 'e',width=12)
 
-        self.loadButton = ttk.Button(frame, text = 'Load Model', command = self._loadModel)
-        self.saveButton = ttk.Button(frame, text = 'Save Model', command = self._saveModel)
+        self.loadButton = ttk.Button(frame, text = 'Load Model', command = self._loadModel, width = 8)
+        self.saveButton = ttk.Button(frame, text = 'Save Model', command = self._saveModel, width = 8)
         self.saveLabel = ttk.Label(frame, text = 'Model File Name:', anchor = 'e',width=12)
         self.saveEntry = ttk.Entry(frame, width = 20, textvariable = self.fileNameEntry)
 
@@ -101,7 +108,7 @@ class GUI(object):
 
         self.seasonsLabel = ttk.Label(frame, text = 'Seasons:', anchor = 'e',width=12)
         self.PositionsLabel = ttk.Label(frame, text = 'Positions:', anchor = 'e',width=12)
-        self.trainButton = ttk.Button(frame, text = 'Train Model', command = self._trainModel)
+        self.trainButton = ttk.Button(frame, text = 'Train Model', command = self._trainModel, width = 8)
         self.trainInputLabel = ttk.Label(frame, text = 'Training Inputs', borderwidth = 5)
         self.trainEntrySeasonList = ttk.Entry(frame, width = 20, textvariable = self.trainSeasonList)
         self.trainPositionsList = ttk.Entry(frame, width = 20, textvariable = self.trainPositionList)
@@ -117,7 +124,8 @@ class GUI(object):
         self.statusText.set('Connecting...')
         fileName = self.connectFileEntry.get()
         self.connection = connect.connect(fileName)
-        self.league = yfa.League(self.connection,'nfl.l.254924')
+        self.leagueCode = str('nfl.l.' + self.leaugeID.get())
+        self.league = yfa.League(self.connection, self.leagueCode) #'nfl.l.254924'
         self.statusText.set('Connected to Yahoo Fantasy!')
 
     def _trainModel(self):
