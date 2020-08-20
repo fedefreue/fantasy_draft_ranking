@@ -132,6 +132,7 @@ dmypy.json
 private.json
 private2.json
 test_file.csv
-Scratch.ipynb
+
+# Environment settings
 .vscode/
 .idea/
