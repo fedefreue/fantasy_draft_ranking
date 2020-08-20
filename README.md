@@ -1,4 +1,4 @@
-# C+ Team Draft Modeling Tool
+# "C+ Rated" Draft Modeling Tool
 Prepared for Yahoo Fantasy NFL leauges, this tool uses prior data to estimate expected points by player for the upcoming season. 
 
 ## Feautres:
