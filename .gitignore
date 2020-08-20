@@ -132,6 +132,6 @@ dmypy.json
 private.json
 private2.json
 test_file.csv
-*.ipynb
+Scratch.ipynb
 .vscode/
 .idea/
