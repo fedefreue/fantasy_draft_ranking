@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import sklearn.linear_model
 import yahoo_fantasy_api as yfa
+import pickle
 
 import connect
 import playerData
@@ -29,55 +30,88 @@ class GUI(object):
     def __init__(self, master):
         self.master = master
         master.title("Fed Draft Analysis Tool")
-        master.minsize(400,400)
+        master.geometry('500x275')
+        master.minsize(500,275)
 
-        self.connectElementsColumn(columnVar = 0)
-        self.trainElementsColumn(columnVar = 1)
-        self.applyElementsColumn(columnVar = 2)
+        self.connectFrame = ttk.Frame(self.master)
+        self.connectFrame.grid(row = 0, column = 0)
+
+        self.trainFrame = ttk.Frame(self.master)
+        self.trainFrame.grid(row = 1)
+
+        self.applyFrame = ttk.Frame(self.master)
+        self.applyFrame.grid(row = 2)
+
+        self.statusFrame = ttk.Frame(self.master)
+        self.statusFrame.grid(row = 3)
+
+        self.connectElementsFrame(frame = self.connectFrame)
+        self.trainElementsFrame(frame = self.trainFrame)
+        self.applyElementsFrame(frame = self.applyFrame)
 
         self.statusText = tk.StringVar()
-        self.statusTextLabel = tk.Label(self.master, textvariable = self.statusText)
-        self.statusTextLabel.grid(column = 0, row = 5)
+        self.statusTextLabel = tk.Label(self.statusFrame, textvariable = self.statusText)
+        self.statusTextLabel.pack()
 
-    def connectElementsColumn(self, columnVar: int):
+    def connectElementsFrame(self, frame: ttk.Frame):
+        self.connectTitle = ttk.Label(frame, text = 'Connect to Yahoo', borderwidth = 5)
+        self.tokenLabel = ttk.Label(frame, text = 'Token File:', anchor = 'e',width=12)
         self.connectFile = tk.StringVar()
         self.connectFile.set('private.json')
         
-        self.connectButton = ttk.Button(self.master, text = 'Connect', command = self._connect)
-        self.connectFileEntry = ttk.Entry(self.master, width = 20, textvariable = self.connectFile)
+        self.connectButton = ttk.Button(frame, text = 'Connect', command = self._connect)
+        self.connectFileEntry = ttk.Entry(frame, width = 20, textvariable = self.connectFile)
         
-        self.connectFileEntry.grid(column = columnVar, row = 1)
-        self.connectButton.grid(column = columnVar, row = 3)
+        self.tokenLabel.grid(column = 0, row = 1)
+        self.connectTitle.grid(column = 1, row = 0)
+        self.connectFileEntry.grid(column = 1, row = 1)
+        self.connectButton.grid(column = 2, row = 1)
 
-    def applyElementsColumn(self, columnVar: int):
+    def applyElementsFrame(self, frame: ttk.Frame):
         self.applyPositionList = tk.StringVar()
         self.applyPositionList.set('Positions')
+        self.fileNameEntry = tk.StringVar()
+        self.fileNameEntry.set('model.pkl')
 
-        self.applyInputLabel = ttk.Label(self.master, text = 'Apply Model and Rank')
-        self.applyButton = ttk.Button(self.master, text = 'Rank Players', command = self._rankPlayers)
-        self.applyPositionEntry = ttk.Entry(self.master, width = 20, textvariable = self.applyPositionList)
+        self.applyInputLabel = ttk.Label(frame, text = 'Model Management', borderwidth = 5)
+        self.applyButton = ttk.Button(frame, text = 'Rank Players', command = self._rankPlayers)
+        self.applyPositionEntry = ttk.Entry(frame, width = 20, textvariable = self.applyPositionList)
+        self.applyLabel = ttk.Label(frame, text = 'Positions:', anchor = 'e',width=12)
 
-        self.applyInputLabel.grid(column = columnVar, row = 0)
-        self.applyPositionEntry.grid(column = columnVar, row = 1)
-        self.applyButton.grid(column = columnVar, row = 3)
+        self.loadButton = ttk.Button(frame, text = 'Load Model', command = self._loadModel)
+        self.saveButton = ttk.Button(frame, text = 'Save Model', command = self._saveModel)
+        self.saveLabel = ttk.Label(frame, text = 'Model File Name:', anchor = 'e',width=12)
+        self.saveEntry = ttk.Entry(frame, width = 20, textvariable = self.fileNameEntry)
 
-    def trainElementsColumn(self, columnVar: int):
+
+        self.applyInputLabel.grid(column = 1, row = 0)
+        self.applyPositionEntry.grid(column = 1, row = 1)
+        self.applyButton.grid(column = 2, row = 3)
+        self.saveLabel.grid(column = 0, row = 2)
+        self.saveEntry.grid(column = 1, row = 2)
+        self.loadButton.grid(column = 2, row = 1)
+        self.saveButton.grid(column = 2, row = 2)
+        self.applyLabel.grid(column = 0, row = 1)
+
+    def trainElementsFrame(self, frame: ttk.Frame):
         self.trainSeasonList = tk.StringVar()
         self.trainSeasonList.set('Seasons')
         self.trainPositionList = tk.StringVar()
         self.trainPositionList.set('Positions')
 
-        self.trainButton = ttk.Button(self.master, text = 'Train Model', command = self._trainModel)
-        self.trainInputLabel = ttk.Label(self.master, text = 'Training Inputs')
-        self.trainEntrySeasonList = ttk.Entry(self.master, width = 20, textvariable = self.trainSeasonList)
-        self.trainPositionsList = ttk.Entry(self.master, width = 20, textvariable = self.trainPositionList)
+        self.seasonsLabel = ttk.Label(frame, text = 'Seasons:', anchor = 'e',width=12)
+        self.PositionsLabel = ttk.Label(frame, text = 'Positions:', anchor = 'e',width=12)
+        self.trainButton = ttk.Button(frame, text = 'Train Model', command = self._trainModel)
+        self.trainInputLabel = ttk.Label(frame, text = 'Training Inputs', borderwidth = 5)
+        self.trainEntrySeasonList = ttk.Entry(frame, width = 20, textvariable = self.trainSeasonList)
+        self.trainPositionsList = ttk.Entry(frame, width = 20, textvariable = self.trainPositionList)
 
-        self.trainInputLabel.grid(column = columnVar, row = 0)
-        self.trainEntrySeasonList.grid(column = columnVar, row = 1)
-        self.trainPositionsList.grid(column = columnVar, row = 2)
-        self.trainButton.grid(column = columnVar, row = 3)
-
-        #result=textExample.get("1.0", "end")
+        self.seasonsLabel.grid(column = 0, row = 1)
+        self.PositionsLabel.grid(column = 0, row = 2)
+        self.trainInputLabel.grid(column = 1, row = 0)
+        self.trainEntrySeasonList.grid(column = 1, row = 1)
+        self.trainPositionsList.grid(column = 1, row = 2)
+        self.trainButton.grid(column = 2, row = 1)
 
     def _connect(self):
         self.statusText.set('Connecting...')
@@ -112,12 +146,17 @@ class GUI(object):
         plt.show()
 
     def _saveModel(self):
-        a = 1
+        self.pkl_filename = self.fileNameEntry.get()
+        with open(self.pkl_filename, 'wb') as file:
+            pickle.dump(self.model, file)
+        
         # Need to add a text box to keep track of the model file
         # https://stackabuse.com/scikit-learn-save-and-restore-models/
 
-    def _loadModel(self, modelFileName: str):
-        a = 2
+    def _loadModel(self):
+        self.pkl_filename = self.fileNameEntry.get()
+        with open(self.pkl_filename, 'rb') as file:
+            self.model = pickle.load(file)
         # Pull the file with Pickles, return a model to self.model
 
     def _rankPlayers(self):

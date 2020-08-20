@@ -18,7 +18,7 @@ def connect(fileName:str):
     
     return conn
 
-conn = connect('private.json')
+#conn = connect('private.json')
 
 #league = yfa.League(conn,'nfl.l.254924')
 
