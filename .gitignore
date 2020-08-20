@@ -136,3 +136,4 @@ test_file.csv
 # Environment settings
 .vscode/
 .idea/
+.DS_Store
