@@ -137,3 +137,4 @@ test_file.csv
 .vscode/
 .idea/
 .DS_Store
+*.pkl
