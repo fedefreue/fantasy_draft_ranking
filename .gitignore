@@ -138,3 +138,5 @@ test_file.csv
 .idea/
 .DS_Store
 *.pkl
+*.png
+*.csv

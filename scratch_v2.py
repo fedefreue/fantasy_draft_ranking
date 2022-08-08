@@ -1,15 +1,15 @@
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 import pandas as pd
 import numpy as np
 import sklearn.linear_model
+from sklearn.metrics import r2_score
 import matplotlib.pyplot as plt
+import tensorflow as tf
 
-
-# Get data for the last 5 years
 # import pandas as pd
 # df = pd.read_csv('https://raw.githubusercontent.com/fantasydatapros/data/master/yearly/2019.csv')
-
-
 
 points = {
     'Pass Yds':     0.04,
@@ -55,44 +55,58 @@ def calculatePoints(rawStats: pd.DataFrame(), points: dict):
 
     return rawStats
 
+def trainModel(layer1: int, layer2: int, modelFeatures, modelY):
+    # Build a neural network using tensorflow to predict modelY using modelFeatures
+    model = tf.keras.Sequential([
+        tf.keras.layers.Dense(layer1, activation=tf.nn.relu),
+        tf.keras.layers.Dense(layer2, activation=tf.nn.relu),
+        tf.keras.layers.Dense(1)
+    ])
 
-rawData = buildDataset(2022, 5)
+    # Run the model to predict modelY using modelFeatures and save the predictions to modelYPred
+    model.compile(optimizer='adam', loss='mean_squared_error')
+    model.fit(modelFeatures, modelY, epochs=20, verbose=0)
+    modelYPred = model.predict(modelFeatures, verbose=0)
+    # print(model.evaluate(modelFeatures, modelY))
+    # print(model.summary())
+
+    rSquare = r2_score(modelY, modelYPred, multioutput='variance_weighted')
+    return rSquare, model
+
+rawData = buildDataset(2022, 10)
 forPrint = calculatePoints(rawData, points)
-print(forPrint)
-
-# Show all rows in forPrint where Player is Cooper Kupp
-print(forPrint.loc[forPrint['Player'] == 'Cooper Kupp'])
 
 # Create a new pd.DataFrame with the columns we want
-modelFeatures = pd.DataFrame(forPrint, columns = ['PassingYds', 'PassingTD', 'Int', 'RushingAtt', 'RushingTD', 'ReceivingYds', 'ReceivingTD', 'FumblesLost'])
+modelFeatures = pd.DataFrame(forPrint, columns = ['Tgt', 'PassingAtt', 'RushingAtt', 'PassingYds', 'PassingTD', 'Int', 'RushingAtt', 'RushingTD', 'ReceivingYds', 'ReceivingTD', 'FumblesLost', 'Fumbles'])
 modelY = forPrint['waffleHousePointsBefore']
 
-print(modelFeatures)
-print(modelY)
-
+# Convert to numpy arrays
 modelFeatures = modelFeatures.to_numpy()
 modelY = modelY.to_numpy()
-
 
 # Remove NaN values from modelFeatures and modelY
 modelFeatures = modelFeatures[~np.isnan(modelFeatures).any(axis=1)]
 modelY = modelY[~np.isnan(modelY)]
 
-model = sklearn.linear_model.LinearRegression().fit(modelFeatures, modelY)
-print(model.score(modelFeatures, modelY))
-plt.scatter(model.predict(modelFeatures), modelY)
-plt.show()
+layer1 = 13
+layer2 = 6
+# Make a pd.DataFrame with three columns called evalTable
+evalTable = pd.DataFrame(columns=['layer1', 'layer2', 'rSquare'])
 
-# print(forPrint)
+for i in range(1, layer1 + 1):
+    for j in range(1, min(i, layer2 + 1)):
+        # Add a new row to evalTable, and add i + 1 in layer1 column and j +1 in layer2 column
+        evalTable = evalTable.append(pd.Series([i, j, 0]), ignore_index=True)
 
-#   features = masterTable.drop(columns = ['position_type', 'player_id', 'Points'])
-#         y_train = masterTable['Points']
+        # In the last row of evalTable, add the output of trainModel(i + 1, j + 1, modelFeatures, modelY) to the third column
+        evalTable.iloc[-1, 2] = trainModel(i, j, modelFeatures, modelY)[0]
+        print('Model with Layer 1 = ' + str(i) + ' and Layer 2 = ' + str(j) + ': ' + str(evalTable.iloc[-1, 2]))
+        # evalTable.iloc[-1, 2] = trainModel(i + 1, j + 1, modelFeatures, modelY)[0]
+        # evalTable.loc[len(evalTable)] = trainModel(i + 1, j + 1, modelFeatures, modelY)
+        
+        # evalTable[rSq], none = trainModel(i + 1, j + 1, modelFeatures, modelY)
 
-#         features = features.to_numpy()
-#         y_train = y_train.to_numpy()
+        j += 1
+    i += 1
 
-#         self.model = sklearn.linear_model.LinearRegression().fit(features, y_train)
-#         #print(self.model.score(features, y_train))
-#         self.statusText.set('R2: ' + str(self.model.score(features, y_train))) 
-#         plt.scatter(self.model.predict(features), y_train)
-#         plt.show()
+evalTable.to_csv('evalTable.csv')
