@@ -7,9 +7,7 @@ import sklearn.linear_model
 from sklearn.metrics import r2_score
 import matplotlib.pyplot as plt
 import tensorflow as tf
-
-# import pandas as pd
-# df = pd.read_csv('https://raw.githubusercontent.com/fantasydatapros/data/master/yearly/2019.csv')
+import glob
 
 points = {
     'Pass Yds':     0.04,
@@ -18,7 +16,7 @@ points = {
     'Rush Att':     0.1,
     'Rush TD':      6,
     'Ret TD':       6,
-    'Rec':          0.5,
+    'Rec':          1,
     'Rec Yds':      0.1,
     'Rec TD':       6,
     '2-PT':         2,
@@ -31,7 +29,10 @@ layer2 = 6
 thisYear = 2022
 yearsToTrain = 10
 tableForRank = pd.read_csv('https://raw.githubusercontent.com/fantasydatapros/data/master/yearly/2021.csv')
-tableForRank = tableForRank.loc[tableForRank['Position'].notnull()]
+tableForRank = tableForRank.loc[tableForRank['Pos'].notnull()]
+
+# Create an empty pd.DataFrame() called finalRanks
+#finalRanks = pd.DataFrame()
 
 def buildDataset(seasonYear: int, historyYears: int):
     df = pd.DataFrame()
@@ -84,7 +85,9 @@ def trainModel(layer1: int, layer2: int, modelFeatures, modelY):
 def createRanks(thisYear: int, yearsToTrain: int, points: dict, position: str, tableForRank: pd.DataFrame()):
     rawData = buildDataset(thisYear, yearsToTrain)
     forPrint = calculatePoints(rawData, points)
-    
+
+    tableForRank['Player'] = tableForRank['Player'].str.replace('*', '')
+    tableForRank['Player'] = tableForRank['Player'].str.replace('+', '')
     tableForRank = tableForRank.loc[tableForRank['Pos'] == position]
     tableForRank_withPlayers = pd.DataFrame(tableForRank, columns = ['Player', 'Pos', 'Tgt', 'PassingAtt', 'RushingAtt', 'PassingYds', 'PassingTD', 'Int', 'RushingAtt', 'RushingTD', 'ReceivingYds', 'ReceivingTD', 'FumblesLost', 'Fumbles'])
 
@@ -116,12 +119,12 @@ def createRanks(thisYear: int, yearsToTrain: int, points: dict, position: str, t
 
             # In the last row of evalTable, add the output of trainModel(i + 1, j + 1, modelFeatures, modelY) to the third column
             evalTable.iloc[-1, 2], currentModel = trainModel(i, j, modelFeatures, modelY)
-            print('Model with Layer 1 = ' + str(i) + ' and Layer 2 = ' + str(j) + ': ' + str(evalTable.iloc[-1, 2]))
 
             # If the rSquare of the last row of evalTable is greater than best_r2, set best_r2 to that rSquare
             if evalTable.iloc[-1, 2] > best_r2:
                 best_r2 = evalTable.iloc[-1, 2]
                 bestModel = currentModel
+                print('New Best: Layer 1 = ' + str(i) + ', Layer 2 = ' + str(j) + ', R2 = ' + str(evalTable.iloc[-1, 2]))
                 
                 # Remove columns Player and Pos from tableForRank
                 tableForRank = tableForRank_withPlayers.drop(columns=['Player', 'Pos'])
@@ -148,3 +151,11 @@ for position in tableForRank['Pos'].unique():
      print('Ranking ' + position + '...')
      createRanks(thisYear, yearsToTrain, points, position, tableForRank)
 
+# Find all finals with the name final_rank_*.csv and append them into a single table
+finalTable = pd.concat([pd.read_csv(f) for f in glob.glob('finalRank_*.csv')], ignore_index = True) 
+
+# Rank finalTable by predictedPoints descending
+finalTable = finalTable.sort_values(by=['predictedPoints'], ascending=False)
+
+# Save finalTable to a csv file called finalRank.csv
+finalTable.to_csv('finalRank.csv', index=False)
