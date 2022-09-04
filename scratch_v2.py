@@ -31,8 +31,7 @@ layer2 = 6
 thisYear = 2022
 yearsToTrain = 10
 tableForRank = pd.read_csv('https://raw.githubusercontent.com/fantasydatapros/data/master/yearly/2021.csv')
-position = 'RB'
-
+tableForRank = tableForRank.loc[tableForRank['Position'].notnull()]
 
 def buildDataset(seasonYear: int, historyYears: int):
     df = pd.DataFrame()
