@@ -26,6 +26,14 @@ points = {
     'Fum Ret TD':   2
 }
 
+layer1 = 13
+layer2 = 6
+thisYear = 2022
+yearsToTrain = 10
+tableForRank = pd.read_csv('https://raw.githubusercontent.com/fantasydatapros/data/master/yearly/2021.csv')
+position = 'RB'
+
+
 def buildDataset(seasonYear: int, historyYears: int):
     df = pd.DataFrame()
 
@@ -67,46 +75,77 @@ def trainModel(layer1: int, layer2: int, modelFeatures, modelY):
     model.compile(optimizer='adam', loss='mean_squared_error')
     model.fit(modelFeatures, modelY, epochs=20, verbose=0)
     modelYPred = model.predict(modelFeatures, verbose=0)
+
     # print(model.evaluate(modelFeatures, modelY))
     # print(model.summary())
 
     rSquare = r2_score(modelY, modelYPred, multioutput='variance_weighted')
     return rSquare, model
 
-rawData = buildDataset(2022, 10)
-forPrint = calculatePoints(rawData, points)
+def createRanks(thisYear: int, yearsToTrain: int, points: dict, position: str, tableForRank: pd.DataFrame()):
+    rawData = buildDataset(thisYear, yearsToTrain)
+    forPrint = calculatePoints(rawData, points)
+    
+    tableForRank = tableForRank.loc[tableForRank['Pos'] == position]
+    tableForRank_withPlayers = pd.DataFrame(tableForRank, columns = ['Player', 'Pos', 'Tgt', 'PassingAtt', 'RushingAtt', 'PassingYds', 'PassingTD', 'Int', 'RushingAtt', 'RushingTD', 'ReceivingYds', 'ReceivingTD', 'FumblesLost', 'Fumbles'])
 
-# Create a new pd.DataFrame with the columns we want
-modelFeatures = pd.DataFrame(forPrint, columns = ['Tgt', 'PassingAtt', 'RushingAtt', 'PassingYds', 'PassingTD', 'Int', 'RushingAtt', 'RushingTD', 'ReceivingYds', 'ReceivingTD', 'FumblesLost', 'Fumbles'])
-modelY = forPrint['waffleHousePointsBefore']
+    # Filter forPrint to only rows with Pos = position
+    forPrint = forPrint.loc[forPrint['Pos'] == position]
+    
+    # Create a new pd.DataFrame with the columns we want
+    modelFeatures = pd.DataFrame(forPrint, columns = ['Tgt', 'PassingAtt', 'RushingAtt', 'PassingYds', 'PassingTD', 'Int', 'RushingAtt', 'RushingTD', 'ReceivingYds', 'ReceivingTD', 'FumblesLost', 'Fumbles'])
 
-# Convert to numpy arrays
-modelFeatures = modelFeatures.to_numpy()
-modelY = modelY.to_numpy()
+    # modelFeatures = modelFeatures.loc[modelFeatures['Pos'] == position]
+    modelY = forPrint['waffleHousePointsBefore']
 
-# Remove NaN values from modelFeatures and modelY
-modelFeatures = modelFeatures[~np.isnan(modelFeatures).any(axis=1)]
-modelY = modelY[~np.isnan(modelY)]
+    # Convert to numpy arrays
+    modelFeatures = modelFeatures.to_numpy()
+    modelY = modelY.to_numpy()
 
-layer1 = 13
-layer2 = 6
-# Make a pd.DataFrame with three columns called evalTable
-evalTable = pd.DataFrame(columns=['layer1', 'layer2', 'rSquare'])
+    # Remove NaN values from modelFeatures and modelY
+    modelFeatures = modelFeatures[~np.isnan(modelFeatures).any(axis=1)]
+    modelY = modelY[~np.isnan(modelY)]
 
-for i in range(1, layer1 + 1):
-    for j in range(1, min(i, layer2 + 1)):
-        # Add a new row to evalTable, and add i + 1 in layer1 column and j +1 in layer2 column
-        evalTable = evalTable.append(pd.Series([i, j, 0]), ignore_index=True)
+    # Make a pd.DataFrame with three columns called evalTable
+    evalTable = pd.DataFrame(columns=['layer1', 'layer2', 'rSquare'])
+    best_r2 = 0.0
 
-        # In the last row of evalTable, add the output of trainModel(i + 1, j + 1, modelFeatures, modelY) to the third column
-        evalTable.iloc[-1, 2] = trainModel(i, j, modelFeatures, modelY)[0]
-        print('Model with Layer 1 = ' + str(i) + ' and Layer 2 = ' + str(j) + ': ' + str(evalTable.iloc[-1, 2]))
-        # evalTable.iloc[-1, 2] = trainModel(i + 1, j + 1, modelFeatures, modelY)[0]
-        # evalTable.loc[len(evalTable)] = trainModel(i + 1, j + 1, modelFeatures, modelY)
-        
-        # evalTable[rSq], none = trainModel(i + 1, j + 1, modelFeatures, modelY)
+    for i in range(1, layer1 + 1):
+        for j in range(1, min(i, layer2 + 1)):
+            # Add a new row to evalTable, and add i + 1 in layer1 column and j +1 in layer2 column
+            evalTable = evalTable.append(pd.Series([i, j, 0]), ignore_index=True)
 
-        j += 1
-    i += 1
+            # In the last row of evalTable, add the output of trainModel(i + 1, j + 1, modelFeatures, modelY) to the third column
+            evalTable.iloc[-1, 2], currentModel = trainModel(i, j, modelFeatures, modelY)
+            print('Model with Layer 1 = ' + str(i) + ' and Layer 2 = ' + str(j) + ': ' + str(evalTable.iloc[-1, 2]))
 
-evalTable.to_csv('evalTable.csv')
+            # If the rSquare of the last row of evalTable is greater than best_r2, set best_r2 to that rSquare
+            if evalTable.iloc[-1, 2] > best_r2:
+                best_r2 = evalTable.iloc[-1, 2]
+                bestModel = currentModel
+                
+                # Remove columns Player and Pos from tableForRank
+                tableForRank = tableForRank_withPlayers.drop(columns=['Player', 'Pos'])
+
+                # Generate predictions with bestModel, andd to tableForRank
+                tableForRank['predictedPoints'] = bestModel.predict(tableForRank, verbose=0)
+
+                # Join tableForRank with tableForRank_withPlayers on index and add Player and Pos columns to tableForRank
+                tableForRank = tableForRank.join(tableForRank_withPlayers[['Player', 'Pos']], how='left')
+
+            j += 1
+        i += 1
+
+        # Rank tableForRank by predictedPoints descending
+        # tableForRank = tableForRank.sort_values(by=['predictedPoints'], ascending=False)
+
+        # Save tableForRank to a csv file called finalRank + position + .csv
+        tableForRank.to_csv('finalRank_' + position + '.csv', index=False)
+
+# createRanks(thisYear, yearsToTrain, points, position, tableForRank)
+
+# For each position in tableToRank, run createRanks
+for position in tableForRank['Pos'].unique():
+     print('Ranking ' + position + '...')
+     createRanks(thisYear, yearsToTrain, points, position, tableForRank)
+
