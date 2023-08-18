@@ -1,7 +1,11 @@
+
+import matplotlib
+matplotlib.use('Agg')
+
+import matplotlib.pyplot as plt
 import tkinter as tk
 from tkinter import Tk, ttk
 
-import matplotlib.pyplot as plt
 import pandas as pd
 import sklearn.linear_model
 import yahoo_fantasy_api as yfa
