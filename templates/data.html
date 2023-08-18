@@ -5,9 +5,15 @@ Data
 {% block content %}
 <p>Data scrape and saving.</p>
 
+
+
 <form method="POST" action="/data/">
-    <input type="submit" value="ok" name="gen_table" />
+    <input type="submit" class="btn btn-default" value="Initialize DB" name="db_init" />
+    <input type="submit" class="btn btn-default" value="Connect to DB" name="db_connect" />
+    <input type="submit" class="btn btn-default" value="Scrape Data" name="gen_table" />
 </form>
+
+{{db_status_flag}}
 
 {% for table in tables %}
     {{ table|safe }}
