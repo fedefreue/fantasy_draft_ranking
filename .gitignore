@@ -64,6 +64,7 @@ db.sqlite3-journal
 # Flask stuff:
 instance/
 .webassets-cache
+flask_session/
 
 # Scrapy stuff:
 .scrapy
@@ -134,7 +135,6 @@ private2.json
 test_file.csv
 
 # Environment settings
-.vscode/
 .idea/
 .DS_Store
 *.pkl

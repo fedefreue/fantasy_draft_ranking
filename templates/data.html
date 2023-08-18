@@ -4,4 +4,13 @@ Data
 {% endblock %}
 {% block content %}
 <p>Data scrape and saving.</p>
+
+<form method="POST" action="/data/">
+    <input type="submit" value="ok" name="gen_table" />
+</form>
+
+{% for table in tables %}
+    {{ table|safe }}
+{% endfor %}
+
 {% endblock %}

@@ -4,4 +4,11 @@ Home
 {% endblock %}
 {% block content %}
 <p>Home page for the Visual Studio Code Flask tutorial.</p>
+
+<form method="POST" action="/">
+    <input type="submit" value="connect" name="connect" />
+</form>
+
+{{buttonvalue}}
+
 {% endblock %}
