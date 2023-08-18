@@ -140,3 +140,4 @@ test_file.csv
 *.pkl
 *.png
 *.csv
+*.tf

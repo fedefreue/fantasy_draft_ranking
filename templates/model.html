@@ -4,4 +4,12 @@ Home
 {% endblock %}
 {% block content %}
 <p>Model training, saving, and loading.</p>
+
+
+<form method="POST" action="/model/">
+    <input type="submit" class="btn btn-default" value="Train Model" name="model_train" />
+</form>
+
+{{arch_debug}}
+
 {% endblock %}

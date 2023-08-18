@@ -8,7 +8,7 @@ import data_prep
 import sqlite3
 
 import connect
-import playerData
+import model
 
 app = Flask(__name__)
 app.config["SESSION_PERMANENT"] = False
@@ -114,8 +114,10 @@ def route_data():
 
 @app.route("/model/", methods=["GET", "POST"])
 def route_model():
-    if request.form.get("train") == "train":
-        return render_template("model.html")
+    if request.form.get("model_train") == "Train Model":
+        db_connection = sqlite3.connect("db.sqlite3")
+        model_arch = model.model_ranks(db_connection, "features", 1)
+        return render_template("model.html", arch_debug = str(model_arch))
     else:
         return render_template("model.html")
 

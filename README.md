@@ -1,13 +1,13 @@
 # Fantasy Football Draft Modeling Tool
-Prepared for Yahoo Fantasy NFL leauges, this tool uses prior data to estimate expected points by player for the upcoming season. 
+Prepared for NFL fantasy leauges, this tool uses prior data to estimate expected points by player for the upcoming season. 
 
 ## Feautres:
-- Connect to a Yahoo Fantasy Football leauge, providing the league ID
+- Scrape publicly available data for prior seasons (TODO: parameters to change historical data usage)
 - Train a model based on prior performance for free agents (all players if pre-draft), with flexibility on which seasons and positions to use as a training set
-- Save the model to a Pickle container for use without needing to re-query Yahoo
-- Load previously saved models from a Pickle container
-- Rank free agents based on projected points
+- Save the model (TF format) for use without needing to re-query
+- Load previously saved models and rank free agents based on projected points
 
 ## Requirements
-- Yahoo Fantasy account and enrollment in a league
+- For ranking all players, output can be dumped to a csv
+- For ranking free agents, Yahoo Fantasy account and enrollment in a league
 - During the first connection, providing access to the package and providing the verification code in the terminal (no logging in after that is needed)
