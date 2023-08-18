@@ -2,6 +2,7 @@ import sqlite3
 import pandas as pd
 import scrape
 
+
 def initialize(dbConnection, script: str):
     cur = dbConnection.cursor()
     cur.executescript(script)
@@ -24,11 +25,13 @@ def data_rawdl(data_years, dbConnection):
         raw_data["seasonYear"] = year
         raw_data.to_sql("rawData", dbConnection, if_exists="append", index=False)
 
+
 def data_gen_year_list(start_year, num_years):
     year_list = []
     for i in range(num_years):
         year_list.append(start_year - i)
     return year_list
+
 
 def data_format(dbConnection):
     dbConnection.execute(

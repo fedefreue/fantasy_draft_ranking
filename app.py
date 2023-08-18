@@ -37,6 +37,7 @@ positionList = ["RB", "QB", "WR", "TE"]
 yfa_connection = None
 db_connection = None
 
+
 def model_train(masterTable: pd.DataFrame):
     features = masterTable.drop(columns=["position_type", "player_id", "Points"])
     y_train = masterTable["Points"]
@@ -60,28 +61,36 @@ def route_home():
     else:
         return render_template("home.html", buttonvalue="Error")
 
-'''
+
+"""
 league_code = "nfl.l.209930"  # Get from a textbox
 session["league_id"] = yfa.League(session.get("yfa_connection"), league_code)
-'''
+"""
+
 
 @app.route("/data/", methods=["GET", "POST"])
 def route_data():
     if request.form.get("db_init") == "Initialize DB":
         db_connection = sqlite3.connect("db.sqlite3")
-        with open('schema.sql', 'r') as sql_file:
+        with open("schema.sql", "r") as sql_file:
             sql_script = sql_file.read()
         cur = db_connection.cursor()
         cur.executescript(sql_script)
         # cur.commit()
         cur.close()
-        return render_template("data.html", db_status_flag = "Initialized to DB at db.sqlite3")
+        return render_template(
+            "data.html", db_status_flag="Initialized to DB at db.sqlite3"
+        )
     elif request.form.get("db_connect") == "Connect to DB":
         db_connection = sqlite3.connect("db.sqlite3")
         if (
-            db_connection.execute("SELECT COUNT(*) FROM dbInitialize WHERE bool = 1").fetchall()
+            db_connection.execute(
+                "SELECT COUNT(*) FROM dbInitialize WHERE bool = 1"
+            ).fetchall()
         ) is not None:
-            return render_template("data.html", db_status_flag = "Connected to DB at db.sqlite3")
+            return render_template(
+                "data.html", db_status_flag="Connected to DB at db.sqlite3"
+            )
         else:
             raise Exception("Not connected to DB or it has not been initialized")
     elif request.form.get("gen_table") == "Scrape Data":
@@ -89,10 +98,16 @@ def route_data():
         data_years = data_prep.data_gen_year_list(thisYear, yearsToTrain)
         data_prep.data_rawdl(data_years, db_connection)
         data_table = data_prep.data_format(db_connection)
-        debug_data_table = pd.read_sql_query("SELECT * FROM features ORDER BY points DESC LIMIT 100;", db_connection)
+        debug_data_table = pd.read_sql_query(
+            "SELECT * FROM features ORDER BY points DESC LIMIT 100;", db_connection
+        )
         return render_template(
-            "data.html", db_status_flag = "Data scrape completed.", tables=[debug_data_table.to_html(classes="table table-striped", header="true")]
-        ) 
+            "data.html",
+            db_status_flag="Data scrape completed.",
+            tables=[
+                debug_data_table.to_html(classes="table table-striped", header="true")
+            ],
+        )
     else:
         return render_template("data.html")
 
