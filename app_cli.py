@@ -5,7 +5,7 @@ import sqlite3
 layer1 = 13
 layer2 = 6
 current_year = 2022
-years_to_train = 5
+years_to_train = 10
 positions = ["RB", "QB", "WR", "TE"]
 
 dbConnection = sqlite3.connect("db.sqlite3")
@@ -38,9 +38,9 @@ model.optimize_set(
     layer1=layer1,
     layer2=layer2,
     staging_table_name="features",
-    save_model=0,
-    file_name="_",
+    save_model=1,
+    file_name="debug",
     by_position=1,
-    positions=["QB", "RB"],
+    positions=["RB", "QB", "WR", "TE"],
     verbose=1,
 )
