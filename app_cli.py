@@ -33,4 +33,14 @@ data_years = data_prep.gen_year_list(current_year, years_to_train)
 data_prep.raw_dl(data_years, dbConnection)
 data_table = data_prep.format(dbConnection)
 
-model.optimize_set(db_connection=dbConnection, layer1=layer1, layer2=layer2, staging_table_name="features", save_model=0, file_name="_", by_position=1, positions=["QB", "RB"], verbose=1)
+model.optimize_set(
+    db_connection=dbConnection,
+    layer1=layer1,
+    layer2=layer2,
+    staging_table_name="features",
+    save_model=0,
+    file_name="_",
+    by_position=1,
+    positions=["QB", "RB"],
+    verbose=1,
+)

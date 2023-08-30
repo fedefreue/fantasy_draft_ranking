@@ -104,7 +104,7 @@ def route_model():
     if request.form.get("model_train") == "Train Model":
         db_connection = sqlite3.connect("db.sqlite3")
         model_arch = model.optimize(db_connection, "features", 1)
-        return render_template("model.html", arch_debug = str(model_arch))
+        return render_template("model.html", arch_debug=str(model_arch))
     else:
         return render_template("model.html")
 
