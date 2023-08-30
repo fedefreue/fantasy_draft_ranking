@@ -8,16 +8,7 @@ from sklearn.metrics import r2_score
 import tensorflow as tf
 import sqlite3
 
-layer1 = 13
-layer2 = 6
-current_year = 2022
-years_to_train = 15
-
-# Read the table features from db.sqlite3 and load it into a pandas dataframe
-# df = pd.read_sql("SELECT * FROM features", dbConnection)
-
-
-def model_train_tf(layer1: int, layer2: int, modelFeatures, modelY):
+def train_tf(layer1: int, layer2: int, modelFeatures, modelY):
     # Build a neural network using tensorflow to predict modelY using modelFeatures
     model = tf.keras.Sequential(
         [
@@ -29,8 +20,8 @@ def model_train_tf(layer1: int, layer2: int, modelFeatures, modelY):
 
     # Run the model to predict modelY using modelFeatures and save the predictions to modelYPred
     model.compile(optimizer="adam", loss="mean_squared_error")
-    model.fit(modelFeatures, modelY, epochs=20, verbose=0)
-    modelYPred = model.predict(modelFeatures, verbose=0)
+    model.fit(modelFeatures, modelY, epochs=20, verbose="0")
+    modelYPred = model.predict(modelFeatures)
 
     # print(model.evaluate(modelFeatures, modelY))
     # print(model.summary())
@@ -38,12 +29,12 @@ def model_train_tf(layer1: int, layer2: int, modelFeatures, modelY):
     rSquare = r2_score(modelY, modelYPred, multioutput="variance_weighted")
     return rSquare, model
 
-def model_train_lr(stat_features, stat_y):
+def train_lr(stat_features, stat_y):
     model = tf.keras.experimental.LinearModel()
 
     model.compile(optimizer="adam", loss="mse")    
     model.fit(stat_features, stat_y, epochs=20)
-    stat_y_pred = model.predict(stat_features, verbose=0)
+    stat_y_pred = model.predict(stat_features)
     
     best_r2 = r2_score(stat_y, stat_y_pred, multioutput="variance_weighted")
     
@@ -53,8 +44,7 @@ def model_train_lr(stat_features, stat_y):
     print("Baseline R2: " + str(best_r2))
     return best_r2, model
 
-def model_ranks(db_connection: sqlite3.Connection, staging_table_name: str, save_model: int):
-    stat_staging = pd.read_sql_query("SELECT * FROM " + str(staging_table_name), db_connection)
+def optimize(stat_staging: pd.DataFrame, layer1: int, layer2: int, save_model: int = 0, file_name: str = "", verbose: int = 1):
 
     # Remove any row with a NaN value
     stat_staging = stat_staging.dropna(axis=0)
@@ -91,10 +81,11 @@ def model_ranks(db_connection: sqlite3.Connection, staging_table_name: str, save
     evalTable = pd.DataFrame(columns=["layer1", "layer2", "rSquare"])
     best_r2 = 0.0
     best_arch = None
-    best_model = None
+    best_model = tf.keras.Model()
 
     # Baseline LR as a benchmark
-    best_r2, best_model = model_train_lr(stat_features, stat_y)
+    if verbose == 1: print("Creating benchmark linear model...")
+    best_r2, best_model = train_lr(stat_features, stat_y)
 
     stat_staging_best = stat_staging
     stat_staging_best["pred_points"] = best_model.predict(stat_features)
@@ -107,7 +98,8 @@ def model_ranks(db_connection: sqlite3.Connection, staging_table_name: str, save
             evalTable = pd.concat([evalTable, pd.Series([i, j, 0])], ignore_index=True)  # type: ignore
 
             # In the last row of evalTable, add the output of trainModel(i + 1, j + 1, modelFeatures, modelY) to the third column
-            evalTable.iloc[-1, 2], current_model = model_train_tf(
+            if verbose == 1: print("Evaluating model with Layer 1: " + str(i) + ", Layer 2: " + str(j) + "...")
+            evalTable.iloc[-1, 2], current_model = train_tf(
                 i, j, stat_features, stat_y
             )
 
@@ -116,36 +108,38 @@ def model_ranks(db_connection: sqlite3.Connection, staging_table_name: str, save
                 best_r2 = evalTable.iloc[-1, 2]
                 best_model = current_model
                 best_arch = "New Best: Layer 1 = " + str(i) + ", Layer 2 = " + str(j) + ", R2 = " + str(evalTable.iloc[-1, 2])
+                if verbose == 1: print(str(best_arch))
                 
                 stat_staging_best = stat_staging
                 stat_staging_best["pred_points"] = best_model.predict(
-                    stat_features_iter, verbose=1
+                    stat_features_iter
                 )
 
             j += 1
         i += 1
 
     if save_model == 1:
-        tf.keras.saving.save_model(best_model, "model.tf", overwrite = True, save_format = "tf")
-        # best_model.save_model('model.keras')
+        tf.keras.saving.save_model(best_model, file_name, overwrite = True, save_format = "tf")
 
-    return best_arch
+    return best_model, best_r2, best_arch
+
+def optimize_set(db_connection: sqlite3.Connection, staging_table_name: str, layer1: int, layer2: int, save_model: int = 0, file_name: str = "_", by_position: int = 0, positions: list = [], verbose: int = 1):
+    model_set = {}
+    model_set_r2 = {}
+    
+    if by_position == 1:
+        for position in positions:
+            if verbose == 1: print("Optimizng model architecture for " + str(position) + "...")
+            stat_staging = pd.read_sql_query("SELECT * FROM " + str(staging_table_name) + " WHERE pos = '" + str(position) + "'", db_connection)
+            model_set[position], model_set_r2[position], _ = optimize(stat_staging, layer1, layer2, save_model, str(file_name) + "_" + str(position) + ".tf")
+    else:
+        if verbose == 1: print("Optimizng model architecture...")
+        stat_staging = pd.read_sql_query("SELECT * FROM " + str(staging_table_name), db_connection)
+        model_set['all'], model_set_r2['all'], _ = optimize(stat_staging, layer1, layer2, save_model, str(file_name) + ".tf")
+    
+    if verbose == 1: 
+        print(model_set)
+        print(model_set_r2)
+    return model_set, model_set_r2
 
 
-""" 
-dbConnection = sqlite3.connect("db.sqlite3")
-
-# Check if the initializated bit exists
-if (
-    dbConnection.execute("SELECT COUNT(*) FROM dbInitialize WHERE bool = 1").fetchall()
-) is not None:
-    print("Database has been initialized")
-else:
-    raise Exception("Database has not been initialized")
-
-# For each value in dataYears, scrape the data into a raw_data table
-dbConnection.execute("DROP TABLE IF EXISTS rawData")
-dbConnection.commit()
-
-model_ranks(dbConnection, "features", 0)
- """

@@ -38,19 +38,6 @@ yfa_connection = None
 db_connection = None
 
 
-def model_train(masterTable: pd.DataFrame):
-    features = masterTable.drop(columns=["position_type", "player_id", "Points"])
-    y_train = masterTable["Points"]
-
-    features = features.to_numpy()
-    y_train = y_train.to_numpy()
-
-    model = sklearn.linear_model.LinearRegression().fit(features, y_train)
-    statusText = "R2: " + str(model.score(features, y_train))
-    # plt.scatter(self.model.predict(features), y_train)
-    # plt.show()
-
-
 @app.route("/", methods=["GET", "POST"])
 def route_home():
     if request.form.get("connect") == "connect":
@@ -95,9 +82,9 @@ def route_data():
             raise Exception("Not connected to DB or it has not been initialized")
     elif request.form.get("gen_table") == "Scrape Data":
         db_connection = sqlite3.connect("db.sqlite3")
-        data_years = data_prep.data_gen_year_list(thisYear, yearsToTrain)
-        data_prep.data_rawdl(data_years, db_connection)
-        data_table = data_prep.data_format(db_connection)
+        data_years = data_prep.gen_year_list(thisYear, yearsToTrain)
+        data_prep.raw_dl(data_years, db_connection)
+        data_table = data_prep.format(db_connection)
         debug_data_table = pd.read_sql_query(
             "SELECT * FROM features ORDER BY points DESC LIMIT 100;", db_connection
         )
@@ -116,7 +103,7 @@ def route_data():
 def route_model():
     if request.form.get("model_train") == "Train Model":
         db_connection = sqlite3.connect("db.sqlite3")
-        model_arch = model.model_ranks(db_connection, "features", 1)
+        model_arch = model.optimize(db_connection, "features", 1)
         return render_template("model.html", arch_debug = str(model_arch))
     else:
         return render_template("model.html")

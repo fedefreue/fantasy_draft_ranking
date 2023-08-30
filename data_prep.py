@@ -10,7 +10,7 @@ def initialize(dbConnection, script: str):
     cur.close()
 
 
-def data_rawdl(data_years, dbConnection):
+def raw_dl(data_years, dbConnection):
     # Append the 1 - the lowest value in data_years to data_years
     data_years.insert(0, min(data_years) - 1)
 
@@ -26,14 +26,14 @@ def data_rawdl(data_years, dbConnection):
         raw_data.to_sql("rawData", dbConnection, if_exists="append", index=False)
 
 
-def data_gen_year_list(start_year, num_years):
+def gen_year_list(start_year, num_years):
     year_list = []
     for i in range(num_years):
         year_list.append(start_year - i)
     return year_list
 
 
-def data_format(dbConnection):
+def format(dbConnection):
     dbConnection.execute(
         """UPDATE rawData
     SET Player = REPLACE(Player, '+', '')
