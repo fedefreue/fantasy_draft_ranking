@@ -21,7 +21,7 @@ def train_tf(layer1: int, layer2: int, modelFeatures, modelY):
 
     # Run the model to predict modelY using modelFeatures and save the predictions to modelYPred
     model.compile(optimizer="adam", loss="mean_squared_error")
-    model.fit(modelFeatures, modelY, epochs=20, verbose="0")
+    model.fit(modelFeatures, modelY, epochs=20, verbose=0)
     modelYPred = model.predict(modelFeatures)
 
     # print(model.evaluate(modelFeatures, modelY))
@@ -182,15 +182,15 @@ def optimize_set(
                 save_model,
                 str(file_name) + "_" + str(position) + ".tf",
             )
-    else:
-        if verbose == 1:
-            print("Optimizng model architecture...")
-        stat_staging = pd.read_sql_query(
-            "SELECT * FROM " + str(staging_table_name), db_connection
-        )
-        model_set["all"], model_set_r2["all"], _ = optimize(
-            stat_staging, layer1, layer2, save_model, str(file_name) + ".tf"
-        )
+
+    if verbose == 1:
+        print("Optimizng model architecture...")
+    stat_staging = pd.read_sql_query(
+        "SELECT * FROM " + str(staging_table_name), db_connection
+    )
+    model_set["all"], model_set_r2["all"], _ = optimize(
+        stat_staging, layer1, layer2, save_model, str(file_name) + "_all.tf"
+    )
 
     if verbose == 1:
         print(model_set)
