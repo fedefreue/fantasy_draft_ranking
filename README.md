@@ -9,5 +9,3 @@ Prepared for NFL fantasy leauges, this tool uses prior data to estimate expected
 
 ## Requirements
 - For ranking all players, output can be dumped to a csv
-- For ranking free agents, Yahoo Fantasy account and enrollment in a league
-- During the first connection, providing access to the package and providing the verification code in the terminal (no logging in after that is needed)
