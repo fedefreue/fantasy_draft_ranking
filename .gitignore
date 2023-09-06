@@ -141,3 +141,4 @@ test_file.csv
 *.png
 *.csv
 *.tf
+scratch*.py
