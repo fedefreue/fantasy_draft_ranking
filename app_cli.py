@@ -3,12 +3,12 @@ import model
 import sqlite3
 import pandas as pd
 pd.options.mode.chained_assignment = None  # default='warn'
-import tensorflow as tf
+# import tensorflow as tf
 
 layer1 = 15
 layer2 = 7
 current_year = 2022
-years_to_train = 15
+years_to_train = 5
 positions = ["RB", "QB", "WR", "TE"]
 raw_features_name = "rawData"
 raw_apply_name = "rawData_apply"
